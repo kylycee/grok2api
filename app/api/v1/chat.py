@@ -38,7 +38,7 @@ class VideoConfig(BaseModel):
     """视频生成配置"""
 
     aspect_ratio: Optional[str] = Field("3:2", description="视频比例: 1280x720(16:9), 720x1280(9:16), 1792x1024(3:2), 1024x1792(2:3), 1024x1024(1:1)")
-    video_length: Optional[int] = Field(6, description="视频时长(秒): 6-30")
+    video_length: Optional[int] = Field(6, description="视频时长(秒): 6-30；视频别名模型默认支持 6 / 10 / 12 / 15")
     resolution_name: Optional[str] = Field("480p", description="视频分辨率: 480p, 720p")
     preset: Optional[str] = Field("custom", description="风格预设: fun, normal, spicy")
 
@@ -816,8 +816,32 @@ async def chat_completions(request: ChatCompletionRequest):
         )
 
     if model_info and model_info.is_video:
-        # 提取视频配置 (默认值在 Pydantic 模型中处理)
         v_conf = request.video_config or VideoConfig()
+        parsed_ratio, parsed_length, parsed_resolution = ModelService.parse_video_params(
+            request.model
+        )
+
+        if request.video_config is None:
+            aspect_ratio = parsed_ratio
+            video_length = parsed_length
+            resolution_name = parsed_resolution
+        else:
+            default_video_conf = VideoConfig()
+            aspect_ratio = (
+                parsed_ratio
+                if v_conf.aspect_ratio == default_video_conf.aspect_ratio
+                else v_conf.aspect_ratio
+            )
+            video_length = (
+                parsed_length
+                if v_conf.video_length == default_video_conf.video_length
+                else v_conf.video_length
+            )
+            resolution_name = (
+                parsed_resolution
+                if v_conf.resolution_name == default_video_conf.resolution_name
+                else v_conf.resolution_name
+            )
 
         try:
             result = await VideoService.completions(
@@ -825,9 +849,9 @@ async def chat_completions(request: ChatCompletionRequest):
                 messages=[msg.model_dump() for msg in request.messages],
                 stream=request.stream,
                 reasoning_effort=request.reasoning_effort,
-                aspect_ratio=v_conf.aspect_ratio,
-                video_length=v_conf.video_length,
-                resolution=v_conf.resolution_name,
+                aspect_ratio=aspect_ratio,
+                video_length=video_length,
+                resolution=resolution_name,
                 preset=v_conf.preset,
             )
         except Exception as e:

@@ -211,6 +211,102 @@ class ModelService:
             is_image_edit=False,
             is_video=True,
         ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-portrait-6s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Portrait 6s",
+            description="Video generation model (9:16, 6s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-portrait-10s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Portrait 10s",
+            description="Video generation model (9:16, 10s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-portrait-12s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Portrait 12s",
+            description="Video generation model (9:16, 12s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-portrait-15s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Portrait 15s",
+            description="Video generation model (9:16, 15s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-landscape-6s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Landscape 6s",
+            description="Video generation model (16:9, 6s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-landscape-10s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Landscape 10s",
+            description="Video generation model (16:9, 10s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-landscape-12s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Landscape 12s",
+            description="Video generation model (16:9, 12s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
+        ModelInfo(
+            model_id="grok-imagine-1.0-video-landscape-15s",
+            grok_model="grok-3",
+            model_mode="MODEL_MODE_FAST",
+            tier=Tier.BASIC,
+            cost=Cost.HIGH,
+            display_name="Grok Video Landscape 15s",
+            description="Video generation model (16:9, 15s, 720p)",
+            is_image=False,
+            is_image_edit=False,
+            is_video=True,
+        ),
     ]
 
     _map = {m.model_id: m for m in MODELS}
@@ -254,6 +350,29 @@ class ModelService:
             return ["ssoSuper"]
         # 基础模型优先使用 basic 池，缺失时可回退到 super 池
         return ["ssoBasic", "ssoSuper"]
+
+    @classmethod
+    def parse_video_params(cls, model_id: str) -> Tuple[str, int, str]:
+        """从视频别名模型中解析默认生成参数。"""
+        aspect_ratio = "3:2"
+        video_length = 6
+        resolution_name = "720p"
+
+        if "portrait" in model_id:
+            aspect_ratio = "9:16"
+        elif "landscape" in model_id:
+            aspect_ratio = "16:9"
+
+        if "15s" in model_id:
+            video_length = 15
+        elif "12s" in model_id:
+            video_length = 12
+        elif "10s" in model_id:
+            video_length = 10
+        elif "6s" in model_id:
+            video_length = 6
+
+        return aspect_ratio, video_length, resolution_name
 
 
 __all__ = ["ModelService"]
